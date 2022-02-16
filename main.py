@@ -16,8 +16,8 @@ MEDIUM_ARMOUR = 6
 HEAVY_ARMOUR = 7
 
 def main():
-    map = [i for i in range (9)]
-    p1 = Punk(HEAVY_MELEE, HEAVY_ARMOUR, 0)
+    map = [i for i in range (12)]
+    p1 = Punk(LONG_RANGE, LIGHT_ARMOUR, 0)
     p2 = Punk(HEAVY_MELEE, HEAVY_ARMOUR, len(map)-1)
     count = 0
     reroll = True

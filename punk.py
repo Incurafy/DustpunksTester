@@ -60,7 +60,7 @@ class Punk():
                 move_direction = 1
                 if target.pos < self.pos:
                     move_direction = -1
-                dist = utils.clamp(self.speed, 0, dist_to_target) * move_direction
+                dist = (utils.clamp(self.speed, 0, dist_to_target - self.range)) * move_direction
                 self.move(dist)
                 dist_to_target = self.calc_distance(target.pos, self.pos)
                 print(f"Distance: {dist_to_target} spaces")
