@@ -16,7 +16,8 @@ class Punk():
     MEDIUM_ARMOUR = 6
     HEAVY_ARMOUR = 7
 
-    def __init__(self, weapon, armour, pos) -> None:
+    def __init__(self, name, weapon, armour, pos) -> None:
+        self.name = name
         self.weapon = weapon
         self.armour = armour
         self.pos = pos
@@ -35,41 +36,62 @@ class Punk():
     
     def move(self, dist):
         self.pos += dist
-        print(f"Moved {abs(dist)} spaces, new pos is {self.pos}")
     
     def fight(self, target):
-        print("*** START FIGHT ***")
         active = True
-        print(f"Pos is {self.pos}, target pos is {target.pos}")
         dist_to_target = self.calc_distance(target.pos, self.pos)
-        print(f"Distance: {dist_to_target} spaces")
         while active:
             # If target is in range
             if dist_to_target <= self.range:
                 # Attack it
-                print("Target in range, attacking")
                 if self.make_attack(target.armour):
-                    print(f"Hit, dealt {self.damage} damage")
                     target.health -= self.damage
                 else:
                     print("Miss")
                 active = False
             else:
                 # Move closer
-                print("Target not in range, moving closer.")
                 move_direction = 1
                 if target.pos < self.pos:
                     move_direction = -1
-                dist = (utils.clamp(self.speed, 0, dist_to_target - self.range)) * move_direction
+                dist = (utils.clamp(dist_to_target - self.range, 0, self.speed)) * move_direction
                 self.move(dist)
                 dist_to_target = self.calc_distance(target.pos, self.pos)
-                print(f"Distance: {dist_to_target} spaces")
                 # If still not in range, end turn
                 if self.range < dist_to_target:
-                    print("Not in range after moving, ending turn")
                     active = False
-        print("*** END FIGHT ***\n")
-        
+
+    def shoot(self, target):
+        shoot_move_speed = 3
+        dist_to_target = self.calc_distance(target.pos, self.pos)
+        active = True
+        while active:
+            # If target is in range
+            if dist_to_target <= self.range:
+                # Shoot it
+                if self.make_attack(target.armour):
+                    target.health -= self.damage
+                # Run away
+                move_direction = 1
+                if target.pos < self.pos:
+                    move_direction = -1
+                self.move(shoot_move_speed * -move_direction)
+                active = False
+            else:
+                # Move closer
+                move_direction = 1
+                if target.pos < self.pos:
+                    move_direction = -1
+                dist = (utils.clamp(dist_to_target - self.range, 0, shoot_move_speed)) * move_direction
+                self.move(dist)
+                dist_to_target = self.calc_distance(target.pos, self.pos)
+                # If target is in range
+                if dist_to_target <= self.range:
+                    # Shoot it
+                    if self.make_attack(target.armour):
+                        target.health -= self.damage
+                active = False
+
     def get_range(self, weapon):
         match weapon:
             case self.LIGHT_MELEE:
