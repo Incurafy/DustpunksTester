@@ -16,6 +16,13 @@ class Punk():
     MEDIUM_ARMOUR = 6
     HEAVY_ARMOUR = 7
 
+   # Modifiers
+    NO_MOD = 0
+    CHARGE_ATTACK_PEN = -1
+    FOCUS_ATTACK_BONUS = 1
+    CHARGE_MOVE_BONUS = 2
+    SHOOT_MOVE_SPEED = 3
+
     def __init__(self, name, weapon, armour, pos) -> None:
         self.name = name
         self.weapon = weapon
@@ -27,69 +34,66 @@ class Punk():
         self.armour = self.get_armour(armour)
         self.health = self.get_health(armour)
         self.speed = self.get_speed(armour)
+        
+    def make_attack(self, target, mod):
+        result = dice.roll("1d6+" + str(self.attack + mod)).total >= target.armour
+        if result:
+            target.set_health(target.health - self.damage)
     
-    def calc_distance(self, target_pos, current_pos):
-        return abs(target_pos - current_pos)
-
-    def make_attack(self, target_armour):
-        return dice.roll("1d6+" + str(self.attack)).total >= target_armour
+    def calc_distance(self, target):
+        return abs(target.pos - self.pos)
+    
+    def calc_direction(self, target):
+        move_direction = 1
+        if target.pos < self.pos:
+            move_direction = -1
+        return move_direction
     
     def move(self, dist):
         self.pos += dist
+        
+    def dash(self):
+        self.move(self.speed)
+    
+    def move_closer(self, target, mod):
+        dist_to_target = self.calc_distance(target)
+        dist = (utils.clamp(dist_to_target - self.range, 0, self.speed + mod)) * self.calc_direction(target)
+        self.move(dist)
+    
+    def kite(self, target):
+        self.move(self.SHOOT_MOVE_SPEED * -self.calc_direction(target))
     
     def fight(self, target):
         active = True
-        dist_to_target = self.calc_distance(target.pos, self.pos)
+        dist_to_target = self.calc_distance(target)
         while active:
-            # If target is in range
             if dist_to_target <= self.range:
-                # Attack it
-                if self.make_attack(target.armour):
-                    target.health -= self.damage
-                else:
-                    print("Miss")
+                self.make_attack(target, self.NO_MOD)
                 active = False
             else:
-                # Move closer
-                move_direction = 1
-                if target.pos < self.pos:
-                    move_direction = -1
-                dist = (utils.clamp(dist_to_target - self.range, 0, self.speed)) * move_direction
-                self.move(dist)
-                dist_to_target = self.calc_distance(target.pos, self.pos)
-                # If still not in range, end turn
+                self.move_closer(target, self.NO_MOD)
                 if self.range < dist_to_target:
                     active = False
+                    
+    def charge(self, target):
+        self.move_closer(self.calc_distance(target), self.CHARGE_MOVE_BONUS)
+        self.make_attack(target, self.CHARGE_ATTACK_PEN)
+    
+    def focus(self, target):
+        self.make_attack(target, self.FOCUS_ATTACK_BONUS)
 
     def shoot(self, target):
-        shoot_move_speed = 3
-        dist_to_target = self.calc_distance(target.pos, self.pos)
+        dist_to_target = self.calc_distance(target)
         active = True
         while active:
-            # If target is in range
             if dist_to_target <= self.range:
-                # Shoot it
-                if self.make_attack(target.armour):
-                    target.health -= self.damage
-                # Run away
-                move_direction = 1
-                if target.pos < self.pos:
-                    move_direction = -1
-                self.move(shoot_move_speed * -move_direction)
+                self.make_attack(target, self.NO_MOD)
+                self.kite(target)
                 active = False
             else:
-                # Move closer
-                move_direction = 1
-                if target.pos < self.pos:
-                    move_direction = -1
-                dist = (utils.clamp(dist_to_target - self.range, 0, shoot_move_speed)) * move_direction
-                self.move(dist)
-                dist_to_target = self.calc_distance(target.pos, self.pos)
-                # If target is in range
+                self.move_closer(target, self.NO_MOD)
                 if dist_to_target <= self.range:
-                    # Shoot it
-                    if self.make_attack(target.armour):
-                        target.health -= self.damage
+                    self.make_attack(target, self.NO_MOD)
                 active = False
 
     def get_range(self, weapon):
