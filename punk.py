@@ -2,8 +2,7 @@
 
 from operator import truediv
 import d20 as dice
-from gear import Gear
-from skirmish import Skirmish
+from gear import Armours, Weapons
 import utils
 
 class Punk():
@@ -171,77 +170,77 @@ class Punk():
     
     def get_type(self, weapon):
         match weapon:
-            case Gear.LIGHT_MELEE:
+            case Weapons.LIGHT_MELEE:
                 return self.MELEE_PUNK
-            case Gear.HEAVY_MELEE:
+            case Weapons.HEAVY_MELEE:
                 return self.MELEE_PUNK
-            case Gear.SHORT_RANGE:
+            case Weapons.SHORT_RANGE:
                 return self.RANGED_PUNK
-            case Gear.LONG_RANGE:
+            case Weapons.LONG_RANGE:
                 return self.RANGED_PUNK
 
     def get_range(self, weapon):
         match weapon:
-            case Gear.LIGHT_MELEE:
+            case Weapons.LIGHT_MELEE:
                 return 1
-            case Gear.HEAVY_MELEE:
+            case Weapons.HEAVY_MELEE:
                 return 1
-            case Gear.SHORT_RANGE:
+            case Weapons.SHORT_RANGE:
                 return 6
-            case Gear.LONG_RANGE:
+            case Weapons.LONG_RANGE:
                 return 9
             
     def get_attack(self, weapon):
         match weapon:
-            case Gear.LIGHT_MELEE:
+            case Weapons.LIGHT_MELEE:
                 return 1
-            case Gear.HEAVY_MELEE:
+            case Weapons.HEAVY_MELEE:
                 return 2
-            case Gear.SHORT_RANGE:
+            case Weapons.SHORT_RANGE:
                 return 2
-            case Gear.LONG_RANGE:
+            case Weapons.LONG_RANGE:
                 return 3
             
     def get_damage(self, weapon):
         match weapon:
-            case Gear.LIGHT_MELEE:
+            case Weapons.LIGHT_MELEE:
                 return 1
-            case Gear.HEAVY_MELEE:
+            case Weapons.HEAVY_MELEE:
                 return 2
-            case Gear.SHORT_RANGE:
+            case Weapons.SHORT_RANGE:
                 return 2
-            case Gear.LONG_RANGE:
+            case Weapons.LONG_RANGE:
                 return 3
             
     def get_armour(self, armour):
         match armour:
-            case Gear.NO_ARMOUR:
+            case Armours.NO_ARMOUR:
                 return 0
-            case Gear.LIGHT_ARMOUR:
+            case Armours.LIGHT_ARMOUR:
                 return 2
-            case Gear.MEDIUM_ARMOUR:
+            case Armours.MEDIUM_ARMOUR:
                 return 4
-            case Gear.HEAVY_ARMOUR:
+            case Armours.HEAVY_ARMOUR:
                 return 6
             
     def get_health(self, armour):
         match armour:
-            case Gear.NO_ARMOUR:
+            case Armours.NO_ARMOUR:
                 return 1
-            case Gear.LIGHT_ARMOUR:
+            case Armours.LIGHT_ARMOUR:
                 return 3
-            case Gear.MEDIUM_ARMOUR:
+            case Armours.MEDIUM_ARMOUR:
                 return 5
-            case Gear.HEAVY_ARMOUR:
+            case Armours.HEAVY_ARMOUR:
                 return 6
             
     def get_speed(self, armour):
         match armour:
-            case Gear.NO_ARMOUR:
+            case Armours.NO_ARMOUR:
                 return 7
-            case Gear.LIGHT_ARMOUR:
+            case Armours.LIGHT_ARMOUR:
                 return 6
-            case Gear.MEDIUM_ARMOUR:
+            case Armours.MEDIUM_ARMOUR:
                 return 5
-            case Gear.HEAVY_ARMOUR:
+            case Armours.HEAVY_ARMOUR:
                 return 4
