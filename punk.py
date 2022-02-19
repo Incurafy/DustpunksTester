@@ -138,7 +138,7 @@ class Punk():
         if __debug__: print(f"{self.name}: my type is {self.type}")
         if __debug__: print(f"{self.name}: my pos is {self.pos}")
         if __debug__: print(f"{self.name}: target pos is {target.pos}")
-        if self.type is Punk.MELEE_PUNK:
+        if self.type is self.MELEE_PUNK:
             if self.in_range(target):
                 self.focus(target)
             else:
@@ -217,7 +217,7 @@ class Punk():
             case Armours.NO_ARMOUR:
                 return 0
             case Armours.LIGHT_ARMOUR:
-                return 2
+                return 3
             case Armours.MEDIUM_ARMOUR:
                 return 4
             case Armours.HEAVY_ARMOUR:

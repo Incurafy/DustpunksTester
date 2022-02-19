@@ -41,12 +41,9 @@ def simulate(weapon1, armour1, weapon2, armour2):
     p1_wins = 0
     p2_wins = 0
     
-    for simulations in range(SIMULATIONS):
+    for s in range(SIMULATIONS):
         p1 = make_punk(weapon1, armour1)
         p2 = make_punk(weapon2, armour2)
-        
-        #p1 = Punk("Sniper", Gear.LONG_RANGE, Gear.LIGHT_ARMOUR)
-        #p2 = Punk("Samurai", Gear.HEAVY_MELEE, Gear.HEAVY_ARMOUR)
         p1.set_pos(P1_START_POS)
         p2.set_pos(P2_START_POS)
         reroll = True

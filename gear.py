@@ -34,7 +34,7 @@ class Armours(Enum):
             case Armours.LIGHT_ARMOUR:
                 return "Light Armour"
             case Armours.MEDIUM_ARMOUR:
-                return "Medium Arour"
+                return "Medium Armour"
             case Armours.HEAVY_ARMOUR:
                 return "Heavy Armour"
             case _:
