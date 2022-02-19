@@ -41,9 +41,7 @@ class Punk():
             if __debug__: print(f"{self.name}: miss")
     
     def calc_distance(self, target):
-        dist = abs(target.pos - self.pos)
-        if __debug__: print(f"{self.name}: distance to target is {dist}")
-        return dist
+        return abs(target.pos - self.pos)
     
     def calc_direction(self, target):
         move_direction = 1
@@ -52,26 +50,27 @@ class Punk():
         return move_direction
     
     def in_range(self, target):
-        if __debug__: print(f"{self.name}: target is in range")
-        dist = self.calc_distance(target)
-        return dist <= self.range
+        dist_to_target = self.calc_distance(target)
+        if __debug__: print(f"{self.name}: distance to target is {dist_to_target}")
+        if dist_to_target <= self.range:
+            if __debug__: print(f"{self.name}: target is in range")
+            return True
+        else:
+            if __debug__: print(f"{self.name}: target out of range")
     
     def move(self, dist):
-        if __debug__: print(f"{self.name}: old position, {self.pos}")
+        if __debug__: print(f"{self.name}: old pos is {self.pos}")
         self.pos += dist
-        if __debug__: print(f"{self.name}: new position, {self.pos}")        
+        if __debug__: print(f"{self.name}: new pos is {self.pos}")        
         
-    def dash(self):
+    def dash(self, target):
         if __debug__: print(f"{self.name}: dash")
-        self.move(self.speed)
+        self.move(self.speed * self.calc_direction(target))
     
     def move_closer(self, target, mod):
         dist_to_target = self.calc_distance(target)
-        if __debug__: print(f"{self.name}: move_closer")
         dist = (utils.clamp(dist_to_target - self.range, 0, self.speed + mod)) * self.calc_direction(target)
-        if __debug__: print(f"{self.name}: old position, {self.pos}")
         self.move(dist)
-        if __debug__: print(f"{self.name}: new position, {self.pos}")
         
     def shoot_move(self, target, mod):
         if __debug__: print(f"{self.name}: shoot_move")
@@ -86,8 +85,7 @@ class Punk():
     def can_fight(self, target):
         if __debug__: print(f"{self.name}: checking if can fight")
         dist_to_target = self.calc_distance(target)
-        dist = (utils.clamp(dist_to_target - self.range, 0, self.speed))
-        if dist <= self.speed:
+        if dist_to_target <= self.speed:
             if __debug__: print(f"{self.name}: true, can fight")
             return True
         else:
@@ -95,23 +93,13 @@ class Punk():
     
     def fight(self, target):
         if __debug__: print(f"{self.name}: fight")
-        self.move_closer(target, Punk.NO_MOD)
-        self.make_attack(target, Punk.NO_MOD)
-        """ active = True
-        while active:
-            if self.in_range(target):
-                self.make_attack(target, Punk.NO_MOD)
-                active = False
-            else:
-                self.move_closer(target, Punk.NO_MOD)
-                if not self.in_range(target):
-                    if __debug__: print(f"{self.name}: still not in range, ending turn")
-                    active = False """
+        self.move_closer(target, self.NO_MOD)
+        self.make_attack(target, self.NO_MOD)
             
     def can_charge(self, target):
+        if __debug__: print(f"{self.name}: checking if can charge")
         dist_to_target = self.calc_distance(target)
-        dist = (utils.clamp(dist_to_target - self.range, 0, self.speed))
-        if dist <= self.speed + self.CHARGE_SPEED_BONUS:
+        if dist_to_target <= self.speed + self.CHARGE_SPEED_BONUS:
             if __debug__: print(f"{self.name}: true, can charge")
             return True
         else:
@@ -119,37 +107,58 @@ class Punk():
             
     def charge(self, target):
         if __debug__: print(f"{self.name}: charge")
-        self.move_closer(self.calc_distance(target), self.CHARGE_SPEED_BONUS)
+        self.move_closer(target, self.CHARGE_SPEED_BONUS)
         self.make_attack(target, self.CHARGE_ATTACK_PEN)
     
     def focus(self, target):
         if __debug__: print(f"{self.name}: focus")
         self.make_attack(target, self.FOCUS_ATTACK_BONUS)
 
+    def can_shoot(self, target):
+        if __debug__: print(f"{self.name}: checking if can shoot")
+        dist_to_target = self.calc_distance()
+        if dist_to_target <= self.range + self.SHOOT_MOVE_SPEED:
+            if __debug__: print(f"{self.name}: true, can shoot")
+            return True
+            
+    def can_fight(self, target):
+        if __debug__: print(f"{self.name}: checking if can fight")
+        dist_to_target = self.calc_distance(target)
+        if dist_to_target <= self.speed:
+            if __debug__: print(f"{self.name}: true, can fight")
+            return True
+        else:
+            if __debug__: print(f"{self.name}: false, can't fight")
+
     def shoot(self, target):
         if __debug__: print(f"{self.name}: shoot")
-        self.make_attack(target, Punk.NO_MOD)
+        self.make_attack(target, self.NO_MOD)
                 
     def choose_action(self, target):
         if __debug__: print(f"*** {self.name.upper()} CHOOSING ACTION ***")
+        if __debug__: print(f"{self.name}: my type is {self.type}")
+        if __debug__: print(f"{self.name}: my pos is {self.pos}")
+        if __debug__: print(f"{self.name}: target pos is {target.pos}")
         if self.type is Punk.MELEE_PUNK:
-            if __debug__: print(f"{self.name}: my type is {self.type}")
             if self.in_range(target):
                 self.focus(target)
             else:
-                if self.can_fight(target): self.fight(target)
-                elif self.can_charge(target): self.charge(target)
-                else: self.move_closer() # This is taking the Dash action
-        elif self.type is Punk.RANGED_PUNK:
-            if __debug__: print(f"{self.name}: my type is {self.type}")
+                if self.can_fight(target):
+                    self.fight(target)
+                elif self.can_charge(target):
+                    self.charge(target)
+                else:
+                    self.dash(target)
+        elif self.type is self.RANGED_PUNK:
             if self.in_range(target):
                 self.shoot(target)
                 self.kite(target)
             else:
-                self.shoot_move(target, Punk.NO_MOD)
-                if self.in_range(target):
+                if self.calc_distance(target) <= self.range + self.SHOOT_MOVE_SPEED:
+                    self.shoot_move(target, self.NO_MOD)
                     self.shoot(target)
-                elif __debug__: print(f"{self.name}: still not in range, ending turn")
+                else:
+                    self.move_closer(target, self.NO_MOD)
         else:
             if __debug__: print("No type given.")
         if __debug__: print()

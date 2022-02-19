@@ -8,7 +8,7 @@ def main():
     p2 = Punk("Samurai", Gear.HEAVY_MELEE, Gear.HEAVY_ARMOUR)
     
     p1.set_pos(0)
-    p2.set_pos(1)
+    p2.set_pos(12)
     
     round = 0
     while p1.health > 0 and p2.health > 0:
